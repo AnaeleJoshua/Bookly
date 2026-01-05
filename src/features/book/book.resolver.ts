@@ -14,9 +14,7 @@ export class BookResolver {
   }
 
   @Mutation(() => Book)
-  createBook(
-    @Args('input') input: CreateBookInput,
-  ) {
+  createBook(@Args('input') input: CreateBookInput) {
     return this.bookService.create(input);
   }
 
@@ -29,9 +27,7 @@ export class BookResolver {
   }
 
   @Mutation(() => Book)
-  deleteBook(
-    @Args('id', { type: () => Int }) id: number,
-  ) {
+  deleteBook(@Args('id', { type: () => Int }) id: number) {
     return this.bookService.delete(id);
   }
 }
