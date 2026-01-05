@@ -1,9 +1,29 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
+import { BookModule } from './features/book/book.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+import { PrismaModule } from './prisma/prisma.module';
+import { ConfigModule } from '@nestjs/config';
 @Module({
-  imports: [],
+  imports: [
+    BookModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      graphiql: true,
+      formatError: (error) => ({
+        message: error.message,
+        code: error.extensions?.code,
+      }),
+    }),
+    PrismaModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

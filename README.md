@@ -25,74 +25,158 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Project setup
+## Bookly-BE (backend)
+
+This repository contains the backend for Bookly — a small NestJS + GraphQL API using Prisma and SQLite (via the Better SQLite3 adapter). It exposes a simple CRUD GraphQL API for a `Book` model.
+
+Key features:
+- NestJS (TypeScript)
+- GraphQL (Apollo / code-first schema)
+- Prisma ORM with SQLite (`better-sqlite3` adapter)
+
+---
+
+**Prerequisites**
+- Node.js 18+ and npm
+- Build tools for native modules on Linux (e.g., `build-essential`, `python` for compiling `better-sqlite3` if required)
+
+**Repository layout (important files)**
+- `prisma/schema.prisma` — Prisma schema defining the `Book` model. See [prisma/schema.prisma](prisma/schema.prisma)
+- `src/prisma.service.ts` — Prisma client service used across the app. See [src/prisma.service.ts](src/prisma.service.ts)
+- `src/features/book/book.resolver.ts` — GraphQL resolver exposing queries & mutations. See [src/features/book/book.resolver.ts](src/features/book/book.resolver.ts)
+- `src/features/book/book.service.ts` — Business logic / Prisma calls. See [src/features/book/book.service.ts](src/features/book/book.service.ts)
+- `src/schema.gql` — Generated GraphQL schema file (auto-generated).
+- `package.json` — npm scripts and dependencies. See [package.json](package.json)
+
+---
+
+Getting started
+1. Install dependencies
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+2. Set the database URL
+
+Create a `.env` file in the project root (or set `DATABASE_URL` in your environment). Example using a file-based SQLite DB:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+This project uses `@prisma/adapter-better-sqlite3`, which requires `better-sqlite3` (native). On Linux you may need build tools installed (`build-essential` / `gcc` / `make`).
+
+3. Generate Prisma client
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npx prisma generate
 ```
 
-## Run tests
+4. Apply migrations or push schema
+
+- To run migrations (if you plan to use Prisma migrations):
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma migrate dev --name init
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Or simply push the schema (no migration history required):
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma db push
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The repository already contains a `prisma/migrations` folder with an initial migration; running `migrate dev` will apply it and create the SQLite file (`dev.db` if using the `.env` example above).
 
-## Resources
+5. Start the development server
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+By default the app listens on port `3000`. Open the GraphQL playground at:
 
-## Support
+http://localhost:3000/graphql
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+GraphQL API (examples)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Query: list books
 
-## License
+```graphql
+query {
+  books {
+    id
+    title
+    description
+  }
+}
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Mutation: create a book
+
+```graphql
+mutation {
+  createBook(input: { title: "My Book", description: "Short summary" }) {
+    id
+    title
+    description
+  }
+}
+```
+
+Mutation: update a book
+
+```graphql
+mutation {
+  updateBook(id: 1, input: { title: "Updated title" }) {
+    id
+    title
+    description
+  }
+}
+```
+
+Mutation: delete a book
+
+```graphql
+mutation {
+  deleteBook(id: 1) {
+    id
+    title
+  }
+}
+```
+
+---
+
+Scripts
+- `npm run start:dev` — Start in watch/development mode
+- `npm run start` — Start normally
+- `npm run build` — Build the project
+- `npm test` — Run unit tests
+- `npm run format` — Format code with Prettier
+
+---
+
+Notes & tips
+- If Prisma client code does not update after changing `prisma/schema.prisma`, run `npx prisma generate`.
+- On fresh clones: run `npm install` and then `npx prisma migrate dev --name init` (or `npx prisma db push`) to create the DB.
+- The project uses an adapter to allow `better-sqlite3` with Prisma. If you encounter native build errors, ensure your system has the required build tools and the `node-gyp` chain available.
+- If you want to seed the DB, add a seed script and call it from `package.json` or run a small script that uses `PrismaService` to create initial records.
+
+If you want, I can also:
+- add `prisma` scripts to `package.json` (`prisma:generate`, `prisma:migrate`)
+- add a small seed script
+
+---
+
+Files edited/created by this project work:
+- `src/features/book/book.resolver.ts` — GraphQL types & resolvers
+- `src/features/book/book.service.ts` — Prisma-backed service
+
+---
+
+If anything in this README should be expanded (examples, CI, Dockerfile, seed data), tell me which piece and I'll add it.
