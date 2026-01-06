@@ -16,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      sortSchema: true,
       graphiql: true,
       formatError: (error) => ({
         message: error.message,
