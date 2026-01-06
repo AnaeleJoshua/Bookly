@@ -3,7 +3,7 @@ import { BookService } from './book.service';
 import { Book } from './dto/book.type';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
-import { Auth0Guard } from 'src/Auth config/auth0.guard';
+import { Auth0Guard } from '../../Auth-config/auth0.guard';
 import { UseGuards } from '@nestjs/common';
 
 
