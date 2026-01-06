@@ -6,22 +6,22 @@ export class BookRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.Book.findMany();
+    return this.prisma.book.findMany();
   }
 
   create(data: { title: string; description: string }) {
-    return this.prisma.Book.create({ data });
+    return this.prisma.book.create({ data });
   }
 
   update(id: number, data: { title?: string; description?: string }) {
-    return this.prisma.Book.update({
+    return this.prisma.book.update({
       where: { id },
       data,
     });
   }
 
   delete(id: number) {
-    return this.prisma.Book.delete({
+    return this.prisma.book.delete({
       where: { id },
     });
   }
