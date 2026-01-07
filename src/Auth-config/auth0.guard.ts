@@ -29,10 +29,12 @@ export class Auth0Guard implements CanActivate {
     this.jwks = createRemoteJWKSet(
       new URL(`${this.issuer}.well-known/jwks.json`)
     );
+    
   }
-
+  
   async canActivate(context: ExecutionContext): Promise<boolean> {
     await this.initJwks();
+    console.log(`jwks:${await this.initJwks()}`)
 
     const { jwtVerify } = await import('jose');
 
@@ -45,7 +47,8 @@ export class Auth0Guard implements CanActivate {
     }
 
     const token = authHeader.replace('Bearer ', '');
-
+    console.log(`issuer: ${this.issuer}`)
+    console.log(`audience: ${this.audience}`)
     try {
       const { payload } = await jwtVerify(token, this.jwks, {
         issuer: this.issuer,
