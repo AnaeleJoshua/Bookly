@@ -52,7 +52,11 @@ export class Auth0Guard implements CanActivate {
     try {
       const { payload } = await jwtVerify(token, this.jwks, {
         issuer: this.issuer,
-        audience: this.audience,
+        audience: [
+  this.audience,
+  `${this.issuer}userinfo`,
+]
+,
       });
 
       req.user = payload;
