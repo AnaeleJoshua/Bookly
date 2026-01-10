@@ -6,18 +6,19 @@ import path from 'path';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+  implements OnModuleInit, OnModuleDestroy {
+
   constructor() {
-    // Resolve absolute path to the DB in your repo root
-    const dbPath = path.resolve(process.cwd(), 'dev.db'); 
-    console.log('Using SQLite DB at:', dbPath);
+    const dbPath =
+      process.env.NODE_ENV === 'production'
+        ? path.resolve(process.cwd(), 'prod.db')
+        : path.resolve(process.cwd(), 'dev.db');
 
-    const adapter = new PrismaBetterSqlite3({
-      url: `file:${dbPath}`, // must be file:<absolute-path>
+    super({
+      adapter: new PrismaBetterSqlite3({
+        url: `file:${dbPath}`,
+      }),
     });
-
-    super({ adapter });
   }
 
   async onModuleInit() {
